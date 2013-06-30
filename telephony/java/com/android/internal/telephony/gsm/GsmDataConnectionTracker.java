@@ -1824,13 +1824,16 @@ public final class GsmDataConnectionTracker extends DataConnectionTracker {
                     apnContext.getDependencyMet() +"))");
         }
         if (apnContext.isReady()) {
-            if (enabled && met) return;
-            if (!enabled) {
-                apnContext.setReason(Phone.REASON_DATA_DISABLED);
+            if (enabled && met) {
+                trySetup = true;
             } else {
-                apnContext.setReason(Phone.REASON_DATA_DEPENDENCY_UNMET);
+                if (!enabled) {
+                    apnContext.setReason(Phone.REASON_DATA_DISABLED);
+                } else {
+                    apnContext.setReason(Phone.REASON_DATA_DEPENDENCY_UNMET);
+                }
+                cleanup = true;
             }
-            cleanup = true;
         } else {
             if (enabled && met) {
                 if (apnContext.isEnabled()) {
@@ -2610,6 +2613,10 @@ public final class GsmDataConnectionTracker extends DataConnectionTracker {
             return RILConstants.DATA_PROFILE_FOTA;
         } else if (TextUtils.equals(apnType, Phone.APN_TYPE_CBS)) {
             return RILConstants.DATA_PROFILE_CBS;
+        } else if (TextUtils.equals(apnType, Phone.APN_TYPE_MMS)) {
+            return RILConstants.DATA_PROFILE_MMS;
+        } else if (TextUtils.equals(apnType, Phone.APN_TYPE_SUPL)) {
+            return RILConstants.DATA_PROFILE_SUPL;
         } else {
             return RILConstants.DATA_PROFILE_DEFAULT;
         }
